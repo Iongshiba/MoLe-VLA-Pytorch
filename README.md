@@ -7,18 +7,17 @@
 
 
 ## Installation
-The code is built using Python 3.10, and can be run under any environment with Python 3.8 and above. We require PyTorch >= 2.2.0 and CUDA >= 12.0 (It may run with lower versions, but we have not tested it).
-
-We recommend using [Miniconda](https://docs.conda.io/en/latest/miniconda.html) and setting up an environment:
-
-    conda create --name MoLe_VLA python=3.10
-
-Next, clone our repo and install the required packages:
+- Clone the author's repo
 ```
     git clone https://github.com/RoyZry98/MoLe-VLA.git
     cd MoLE_VLA
-    conda env create -f environment.yml
 ```
+- Environment setup (step by step):
+    1. python=3.10 (suggest using conda)
+    2. pytorch>=2.8 + cuda>=12.8 (for Blackwell architecture)
+    3. tensorflow>=2.17
+    4. pip install -r requirements.txt
+    5. try running inference.sh and install missing libraries
 
 You may refer to [LIFT3D-CVPR2025](https://github.com/PKU-HMI-Lab/LIFT3D?tab=readme-ov-file) to generate the datasets from RLBench.
 
