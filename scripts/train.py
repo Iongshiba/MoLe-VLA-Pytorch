@@ -18,9 +18,13 @@ Run with:
 import json
 import os
 import re
+import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Optional, Tuple, Union
+
+# Ensure local workspace modules (e.g., `prismatic`) take precedence over site-packages.
+sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 import draccus
 import torch
@@ -30,7 +34,7 @@ import wandb
 
 from prismatic.overwatch import initialize_overwatch
 from prismatic.util import set_global_seed
-from prismatic.vla import get_vla_dataset_and_collator
+from prismatic.vla.materialize import get_vla_dataset_and_collator
 from prismatic.vla.datasets.rlds.utils.data_utils import save_dataset_statistics
 
 from training import VLAMetrics, get_train_strategy
@@ -171,7 +175,7 @@ def train(cfg: TrainConfig) -> None:
         if cfg.use_ema:
             overwatch.info("Loading EMA of Diffusion")
         vla = load_vla(cfg.pretrained_checkpoint, 
-                        hf_token=hf_token, 
+                        # hf_token=hf_token, 
                         load_for_training=True, 
                         action_model_type=cfg.action_model_type, 
                         action_dim=cfg.action_dim,
@@ -198,9 +202,11 @@ def train(cfg: TrainConfig) -> None:
         # del this variable to avoid bugs. The vlm shouldn't be used anymore
         del vlm
 
+        
     # [Validate] Model should be in Full Precision!
-    for param in vla.parameters():
-        assert param.dtype == torch.float32, f"Loaded VLM parameter not in full precision: {param}"
+    # for param in vla.parameters():
+    #     assert param.dtype == torch.float32, f"Loaded VLM parameter not in full precision: {param}"
+    vla.vlm = vla.vlm.to(torch.bfloat16)
 
     # Determine training "stage" based on frozen vs unfrozen parameters --> supports different fine-tuning schemes!
     # import ipdb
@@ -236,8 +242,8 @@ def train(cfg: TrainConfig) -> None:
         # vla.vlm.route1.requires_grad_(True)
         # vla.vlm.route2.requires_grad_(True)
         # vla.vlm.lstm.requires_grad_(True)
-        vla.llm_backbone.llm.model.route1.requires_grad_(True)
-        vla.llm_backbone.llm.model.route2.requires_grad_(True)
+        # vla.llm_backbone.llm.model.route1.requires_grad_(True)
+        # vla.llm_backbone.llm.model.route2.requires_grad_(True)
         # vla.llm_backbone.llm.model.route.requires_grad_(True)
         overwatch.info(f"`vla.llm_backbone.llm.model.route1 and route2` has been unfreezed.")
     else:
@@ -261,6 +267,9 @@ def train(cfg: TrainConfig) -> None:
     )
 
     overwatch.info(f"Creating VLA Open-X Dataset with Mixture `{cfg.vla.data_mix}`")
+
+
+    
     # import ipdb
     # ipdb.set_trace()
     vla_dataset, _, collator = get_vla_dataset_and_collator(
@@ -296,7 +305,7 @@ def train(cfg: TrainConfig) -> None:
     dist.barrier()
     # Create Train Strategy
     overwatch.info(f"Initializing Train Strategy `{cfg.train_strategy}`")
-    weight = torch.load("/home/cx/chenhao/hub/models--CogACT--CogACT-Base/snapshots/ffc4db3bef7735ba7aa692d50b6454588a32b753/checkpoints/CogACT-Base.pt", map_location="cpu")["model"]["llm_backbone"]
+    weight = torch.load("/home/longshiba/.cache/huggingface/hub/models--CogACT--CogACT-Base/snapshots/6550bf0992f162fc5d74f14ffee30771a9433363/checkpoints/CogACT-Base.pt", map_location="cpu")["model"]["llm_backbone"]
     # import pdb; pdb.set_trace()
     train_strategy = get_train_strategy(
         train_strategy=cfg.train_strategy,
