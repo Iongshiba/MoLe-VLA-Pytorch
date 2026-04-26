@@ -59,11 +59,15 @@ The backbone model CogACT, which includes checkpoints, configs, and model cards,
 Alternatively, you can use batch inference function ``predict_action_batch`` from [vla/cogactvla.py](./vla/cogactvla.py) to accelerate inference in the simulator.
 
 
-## Quickly train model:
-```bash
-cd /path/to/MoLE_VLA
-bash train_multi_task10_mix.sh 14 0.5 0.1 0.5 32 0.999 0,1,2,3,4,5,6,7
-```
+## Training:
+- I think the author haven't supported training yet, because of unfinished code for Knowledge Distillation
+- Specifially, in the `MoLE_VLA_model/modeling_llama.py`, the `LlamaModelTeacher` class is defined but not implemented in the mainstream
+## Inference:
+- Managed to get the model running on customized dataset, generated from [LIFT3D-CVPR2025](https://github.com/PKU-HMI-Lab/LIFT3D?tab=readme-ov-file) mentioned above.
+- Left: Ground Truth
+- Right: Inference (without fine-tuning)
+
+![groundtruth](results/close_box_groundtruth.gif) ![inference](results/inference_episode_0/close_box_inference.gif)
 
 ## Citation
 Please cite our work if you find it useful.
