@@ -64,7 +64,7 @@ Alternatively, you can use batch inference function ``predict_action_batch`` fro
 ## Inference:
 - Managed to get the model running on customized dataset, generated from [LIFT3D-CVPR2025](https://github.com/PKU-HMI-Lab/LIFT3D?tab=readme-ov-file) mentioned above.
 - Left: Ground Truth
-- Right: Inference (without fine-tuning)
+- Right: Inference (without fine-tuning, and no unnormalized keys)
 
 ![groundtruth](results/close_box_groundtruth.gif) ![inference](results/inference_episode_0/close_box_inference.gif)
 
